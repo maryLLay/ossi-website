@@ -92,6 +92,12 @@ const sortedTitlesMap = {
         {
           allProjects.map((content) => {
             const tagsObj = getTagKeysAndValues(content);
+            const title=content.data.title;
+            const sortOrder = {
+              alphabetical: sortedTitlesMap.alphabetical.indexOf(title),
+              "updated-newest": sortedTitlesMap["updated-newest"].indexOf(title),
+              "updated-oldest": sortedTitlesMap["updated-oldest"].indexOf(title),
+            };
             return (
               <CardContainer
                 key={content.id}
@@ -101,7 +107,7 @@ const sortedTitlesMap = {
                 projectType={content.data["project type"][0]}
                 contentType="projects"
                 maxLength={allProjects.length}
-                sortedTitlesMap={sortedTitlesMap}
+                sortOrder={sortOrder}
                 client:only="react"
               >
                 {content.data["image file"] ? (
