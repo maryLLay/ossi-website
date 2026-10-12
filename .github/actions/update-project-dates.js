@@ -6,7 +6,6 @@ import { graphql } from "@octokit/graphql";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PROJECTS_DIR = join(__dirname, "..", "..", "src", "content", "projects");
-//const REPO_DATES_PATH = join(__dirname, "repo-dates.json");
 
 const authToken = process.env.GITHUB_TOKEN || process.env.OSSI_SITE_TOKEN;
 if (!authToken) {
@@ -110,8 +109,14 @@ let result;
 try {
   result = await graphqlWithAuth(query, variables);
 } catch (error) {
-  console.error("GraphQL query failed:", error.message);
-  process.exit(1);
+  if (error.data){
+    console.warn("GraphQL returned partial data:", error.message);
+    result = error.data;
+  }
+  else {
+    console.error("GraphQL query failed:", error.message);
+    process.exit(1);
+  }
 }
 
 // 3. build repoDates in memory: repo (owner/name, lowercased) -> pushedAt
@@ -126,13 +131,6 @@ uniqueRepos.forEach((p, i) => {
     );
   }
 });
-
-/*
-writeFileSync(REPO_DATES_PATH, JSON.stringify(repoDates, null, 2) + "\n");
-console.log(
-  `Wrote ${Object.keys(repoDates).length} repo dates to ${REPO_DATES_PATH}`
-);
-*/
 
 // 4. splice the resulting update_date into each project's frontmatter
 let updatedCount = 0;
